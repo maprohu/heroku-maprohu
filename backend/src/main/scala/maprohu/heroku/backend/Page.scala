@@ -44,7 +44,7 @@ object Page {
   ) : Route = {
     createRoute(
       dir = dir,
-      deps = "jsdeps-min",
+      deps = "jsdeps.min",
       main = "opt"
     )
   }
