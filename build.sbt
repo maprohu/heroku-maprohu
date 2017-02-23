@@ -33,7 +33,8 @@ lazy val backend =
     .settings(
       commonSettings,
       libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.0.3",
-      libraryDependencies += "com.lihaoyi" %% "scalatags" % "0.6.3"
+      libraryDependencies += "com.lihaoyi" %% "scalatags" % "0.6.3",
+      libraryDependencies += "io.suzaku" %% "boopickle" % "1.2.6"
     )
     .dependsOn(crossJVM)
 
@@ -52,7 +53,10 @@ lazy val frontend =
     .enablePlugins(ScalaJSPlugin)
     .settings(
       commonSettings,
-      persistLauncher in Compile := true
+      persistLauncher in Compile := true,
+      libraryDependencies += "io.suzaku" %%% "boopickle" % "1.2.6",
+      libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.1",
+      libraryDependencies += "io.monix" %%% "monix-reactive" % "2.2.2"
     )
 
 

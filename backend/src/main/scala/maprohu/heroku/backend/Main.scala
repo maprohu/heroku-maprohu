@@ -5,6 +5,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes, Uri}
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.stream.ActorMaterializer
+import maprohu.heroku.shared.Shared
 
 import scala.util.Properties
 
@@ -41,6 +42,11 @@ object Main {
       )
     )
 
+    val wsFlow =
+      PicklingFlow.pickling(
+        LogicFlow.createLogic()
+      )
+
     val route =
       pathEnd {
         redirect(Uri./, StatusCodes.MovedPermanently)
@@ -51,6 +57,11 @@ object Main {
             ContentTypes.`text/html(UTF-8)`,
             pageHtmlString
           )
+        )
+      } ~
+      path(Shared.WebsocketPathElement) {
+        handleWebSocketMessages(
+          wsFlow
         )
       } ~
       params.resourcesRoute
