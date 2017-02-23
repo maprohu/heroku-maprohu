@@ -19,7 +19,7 @@ object Main {
 
     import Directives._
 
-    val route = complete("OK")
+    val route = complete("OK2")
 
     Http()
       .bindAndHandle(
