@@ -18,7 +18,11 @@ lazy val root =
       commonSettings,
       name := appName,
       herokuAppName in Compile := "maprohu",
-      mainClass in Compile := Some("maprohu.heroku.backend.Main")
+      mainClass in Compile := Some("maprohu.heroku.backend.Main"),
+      stage in Universal := {
+        val x = (fullOptJS in Compile in frontend).value
+        (stage in Universal).value
+      }
     )
     .aggregate(backend, frontend, crossJS, crossJVM)
     .dependsOn(backend)
