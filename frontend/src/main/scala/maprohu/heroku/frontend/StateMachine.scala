@@ -3,7 +3,7 @@ package maprohu.heroku.frontend
 import org.scalajs.dom
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.global
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class StateMachineParams(
   alert: String => Unit = s => dom.window.alert(s)

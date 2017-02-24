@@ -1,7 +1,9 @@
 package maprohu.heroku.frontend
 
+import monix.reactive.Consumer
+
 import scala.scalajs.js.JSApp
-import scala.concurrent.ExecutionContext.global
+import monix.execution.Scheduler.Implicits.global
 
 /**
   * Created by pappmar on 23/02/2017.
@@ -9,14 +11,13 @@ import scala.concurrent.ExecutionContext.global
 object MainApp extends JSApp {
   @scala.scalajs.js.annotation.JSExport
   override def main(): Unit = {
-    for {
-      ws <- WebSocketClient.createClient
-    } {
 
-      val machine = StateMachine.create(
-        initial = Initial
+    WebSocketClient
+      .observable
+      .consumeWith(
+        Consumer.foreach(println)
       )
+      .runAsync
 
-    }
   }
 }

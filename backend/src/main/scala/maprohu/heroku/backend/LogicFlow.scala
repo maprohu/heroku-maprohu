@@ -1,8 +1,8 @@
 package maprohu.heroku.backend
 
 import akka.NotUsed
-import akka.stream.scaladsl.Flow
-import maprohu.heroku.shared.ClientToServer
+import akka.stream.scaladsl.{Flow, Source}
+import maprohu.heroku.shared.{ClientToServer, HelloFromServer}
 
 /**
   * Created by pappmar on 23/02/2017.
@@ -16,6 +16,13 @@ object LogicFlow {
         false
       })
       .map(_.asInstanceOf[OutputMessage])
+      .prepend(
+        Source.single(
+          DirectMessage(
+            HelloFromServer()
+          )
+        )
+      )
   }
 
 }

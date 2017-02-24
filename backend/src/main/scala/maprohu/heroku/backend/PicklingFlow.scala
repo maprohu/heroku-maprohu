@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{BroadcastHub, Flow, Keep, MergeHub}
 import akka.util.ByteString
-import maprohu.heroku.shared.{ClientToServer, KeepAlive, ServerToClient}
+import maprohu.heroku.shared._
 
 import scala.concurrent.duration._
 
@@ -23,10 +23,10 @@ object PicklingFlow {
 
     val (broadcastSink, broadcastSource) =
       MergeHub
-        .source[ServerToClient]
+        .source[ServerToClientMessage]
         .toMat(
           BroadcastHub
-            .sink[ServerToClient]
+            .sink[ServerToClientMessage]
         )(Keep.both)
         .run()
 
@@ -58,6 +58,7 @@ object PicklingFlow {
         broadcastSource,
         eagerComplete = true
       )
+      .map(ServerToClientMessageContainer.apply)
       .keepAlive(
         15.seconds,
         () => KeepAlive
@@ -65,7 +66,7 @@ object PicklingFlow {
       .map({ m =>
         BinaryMessage(
           ByteString(
-            Pickle.intoBytes(m)
+            Pickle.intoBytes[ServerToClient](m)
           )
         )
       })
@@ -78,11 +79,11 @@ object PicklingFlow {
 sealed trait OutputMessage
 
 case class DirectMessage(
-  serverToClient: ServerToClient
+  serverToClient: ServerToClientMessage
 ) extends OutputMessage
 
 case class BroadcastMessage(
-  serverToClient: ServerToClient
+  serverToClient: ServerToClientMessage
 ) extends OutputMessage
 
 

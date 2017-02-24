@@ -34,7 +34,8 @@ lazy val backend =
       commonSettings,
       libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.0.3",
       libraryDependencies += "com.lihaoyi" %% "scalatags" % "0.6.3",
-      libraryDependencies += "io.suzaku" %% "boopickle" % "1.2.6"
+      libraryDependencies += "io.suzaku" %% "boopickle" % "1.2.6",
+      libraryDependencies += "io.monix" %% "monix-reactive" % "2.2.2"
     )
     .dependsOn(crossJVM)
 

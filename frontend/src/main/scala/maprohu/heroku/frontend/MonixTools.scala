@@ -13,6 +13,16 @@ import scala.scalajs.js
   */
 object MonixTools {
 
+  def quietly(what: => Any) : Unit = {
+    try {
+      what
+    } catch {
+      case t : Throwable =>
+        t.printStackTrace()
+    }
+  }
+
+
   def listen[T <: org.scalajs.dom.raw.Event](target: EventTarget, evt : String) : Observable[T] = {
     Observable.create(Unbounded) { subscriber =>
       val c = SingleAssignmentCancelable()
