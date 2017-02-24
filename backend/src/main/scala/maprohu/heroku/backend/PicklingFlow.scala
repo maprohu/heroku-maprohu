@@ -20,6 +20,7 @@ object PicklingFlow {
     materializer: ActorMaterializer
   ) = {
     import boopickle.Default._
+    import materializer.executionContext
 
     val (broadcastSink, broadcastSource) =
       MergeHub
@@ -70,6 +71,7 @@ object PicklingFlow {
           )
         )
       })
+      .watchTermination()((_, done) => done.onComplete(println) )
   }
 
 
