@@ -35,7 +35,8 @@ lazy val backend =
       libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.0.3",
       libraryDependencies += "com.lihaoyi" %% "scalatags" % "0.6.3",
       libraryDependencies += "io.suzaku" %% "boopickle" % "1.2.6",
-      libraryDependencies += "io.monix" %% "monix-reactive" % "2.2.2"
+      libraryDependencies += "io.monix" %% "monix-reactive" % "2.2.2",
+      libraryDependencies += "com.typesafe.slick" %% "slick" % "3.2.0-RC1"
     )
     .dependsOn(crossJVM)
 
