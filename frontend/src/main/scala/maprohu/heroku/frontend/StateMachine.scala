@@ -12,7 +12,7 @@ case class StateMachineParams(
 object StateMachine {
 
   def create(
-    initial: State,
+    initial: ConnectionState,
     bufferSize: Int = 1024
   )(implicit
     params: StateMachineParams = StateMachineParams()
