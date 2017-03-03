@@ -1,6 +1,5 @@
 package maprohu.heroku.frontend
 
-import maprohu.heroku.frontend.State.StateInput
 import maprohu.heroku.frontend.ui.{Root, Terminal, UI}
 import maprohu.heroku.shared.ClientToServer
 import monix.reactive.{Consumer, Observable}
@@ -66,19 +65,6 @@ object MainApp extends JSApp {
       connectionEvents,
       session
     )
-//      .flatScan(State.Initial)({ (state, elem) =>
-//        Observable
-//          .fromFuture(
-//            state.process(
-//              StateInput(elem, session)
-//            )
-//          )
-//      })
-//      .consumeWith(
-//        Consumer.complete
-//      )
-//      .runAsync
-
 
   }
 }

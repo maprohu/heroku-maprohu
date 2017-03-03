@@ -4,7 +4,6 @@ import maprohu.heroku.frontend.ui.{DefaultDisplayMessage, DisplayMessage, Termin
 import maprohu.heroku.frontend.ui.Terminal.Command
 import maprohu.heroku.shared.{ChatMessage, ClientToServer}
 import monix.reactive.Observable
-import monix.reactive.observers.Subscriber
 import monix.reactive.subjects.PublishSubject
 import org.scalajs.dom
 
@@ -97,7 +96,9 @@ object TerminalApp {
         settings = settings
       )
 
-    val stateFlow =
+    val stateOut = PublishSubject[Output]()
+
+    val stateFlowCancel =
       Observable
         .merge(
           connection.map(ConnectionEventWrapper.apply),
@@ -172,12 +173,14 @@ object TerminalApp {
           })
         })
         .flatMap(_.out)
+        .subscribe(stateOut)
+
 
 
     val messages =
       Observable
         .merge(
-          stateFlow
+          stateOut
             .collect({
               case o : DisplayMessageWrapper => o.message
             }),
@@ -187,7 +190,7 @@ object TerminalApp {
         )
 
 
-    stateFlow
+    stateOut
       .collect({
         case o : ClientToServerWrapper => o.message
       })

@@ -32,6 +32,7 @@ object Terminal {
         flexGrow := 1
       ).render
 
+
     def addMessage(msg: String) = {
       messages.value = messages.value + s"\n$msg"
       messages.scrollTop = messages.scrollHeight
@@ -46,7 +47,21 @@ object Terminal {
         padding := 5.px,
         width := 100.pct,
         flexGrow := 0,
-        autofocus
+        autofocus,
+        display.inline,
+        placeholder := "type here"
+
+      ).render
+
+    val passwordPrompt =
+      input(
+
+        `type` := "password",
+        padding := 5.px,
+        width := 100.pct,
+        flexGrow := 0,
+        display.inline,
+        placeholder := "password"
 
       ).render
 
@@ -127,7 +142,8 @@ object Terminal {
       width := 100.pct,
 
       messages,
-      prompt
+      prompt,
+      passwordPrompt
     ).render
   }
 

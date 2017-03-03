@@ -158,48 +158,48 @@ case class WsOpen(webSocket: WebSocket) extends WsEvent
 case object WsClose extends WsEvent
 case class WsMessage(msg: ServerToClientMessage) extends WsEvent
 
-class WebSocketClient {
-
-
-  val websocket = WebSocketClient.createWebSocket()
-
-  private def listen[T <: org.scalajs.dom.raw.Event](evt: String) : Observable[T] = {
-    MonixTools.listen(websocket, evt)
-  }
-
-  val open : Observable[org.scalajs.dom.raw.Event] = listen("open")
-  val close : Observable[CloseEvent] = listen("close")
-  val error : Observable[ErrorEvent] = listen("error")
-  val message : Observable[MessageEvent] = listen("message")
-
-  lazy val lost = {
-    Observable
-      .merge(
-        close,
-        error
-      )
-      .map(_ => ())
-      .firstL
-  }
-
-  lazy val opened = {
-    Observable
-      .merge(
-        open.map(_ => Success()),
-        close.map(e => Failure(new Throwable(e.reason))),
-        error.map(e => Failure(new Throwable(e.message)))
-      )
-      .firstL
-  }
-
-  def closeConnection(): Unit = {
-    websocket.close()
-  }
-
-  def send(ab: ArrayBuffer) = {
-    websocket.send(ab)
-  }
-}
-
+//class WebSocketClient {
+//
+//
+//  val websocket = WebSocketClient.createWebSocket()
+//
+//  private def listen[T <: org.scalajs.dom.raw.Event](evt: String) : Observable[T] = {
+//    MonixTools.listen(websocket, evt)
+//  }
+//
+//  val open : Observable[org.scalajs.dom.raw.Event] = listen("open")
+//  val close : Observable[CloseEvent] = listen("close")
+//  val error : Observable[ErrorEvent] = listen("error")
+//  val message : Observable[MessageEvent] = listen("message")
+//
+//  lazy val lost = {
+//    Observable
+//      .merge(
+//        close,
+//        error
+//      )
+//      .map(_ => ())
+//      .firstL
+//  }
+//
+//  lazy val opened = {
+//    Observable
+//      .merge(
+//        open.map(_ => Success()),
+//        close.map(e => Failure(new Throwable(e.reason))),
+//        error.map(e => Failure(new Throwable(e.message)))
+//      )
+//      .firstL
+//  }
+//
+//  def closeConnection(): Unit = {
+//    websocket.close()
+//  }
+//
+//  def send(ab: ArrayBuffer) = {
+//    websocket.send(ab)
+//  }
+//}
+//
 
 

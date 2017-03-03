@@ -5,13 +5,15 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes, Uri}
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.stream.ActorMaterializer
+import maprohu.heroku.backend.data.{Data, PGData}
 import maprohu.heroku.shared.Shared
 
 import scala.util.Properties
 
 case class MainParameters(
   port: Int = Properties.envOrNone("PORT").map(_.toInt).getOrElse(9981),
-  resourcesRoute: Route = Page.createRouteOpt()
+  resourcesRoute: Route = Page.createRouteOpt(),
+  data: Data = new PGData
 )
 
 object Main {
@@ -66,12 +68,22 @@ object Main {
       } ~
       params.resourcesRoute
 
-    Http()
-      .bindAndHandle(
-        route,
-        "0.0.0.0",
-        params.port
-      )
+    val init =
+      for {
+        db <- params.data.init()
+        bound <- {
+          Http()
+            .bindAndHandle(
+              route,
+              "0.0.0.0",
+              params.port
+            )
+        }
+      } yield {
+        bound
+      }
+
+    init
       .onComplete({ result =>
         actorSystem.log.info(result.toString)
       })

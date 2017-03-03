@@ -6,11 +6,13 @@ package maprohu.heroku.backend
 object RunMain {
 
   def main(args: Array[String]): Unit = {
+
     Main
       .run(
         MainParameters(
           port = 9981,
-          resourcesRoute = Page.createRouteFastOpt()
+          resourcesRoute = Page.createRouteFastOpt(),
+          data = new H2Data
         )
       )
   }

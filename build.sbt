@@ -36,7 +36,11 @@ lazy val backend =
       libraryDependencies += "com.lihaoyi" %% "scalatags" % "0.6.3",
       libraryDependencies += "io.suzaku" %% "boopickle" % "1.2.6",
       libraryDependencies += "io.monix" %% "monix-reactive" % "2.2.2",
-      libraryDependencies += "com.typesafe.slick" %% "slick" % "3.2.0-RC1"
+      libraryDependencies += "com.typesafe.slick" %% "slick" % "3.2.0",
+      libraryDependencies += "org.postgresql" % "postgresql" % "42.0.0.jre7",
+      libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+      libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.1",
+      libraryDependencies += "com.h2database" % "h2" % "1.4.193" % Test
     )
     .dependsOn(crossJVM)
 
