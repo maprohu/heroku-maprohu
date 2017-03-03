@@ -38,6 +38,11 @@ case class SessionData(
   connected: Boolean
 )
 
+case class ChatMessage(
+  from: String,
+  message: String
+) extends ClientToServer with ServerToClientMessage
+
 
 //case class UserInfo(
 //  id: Long,

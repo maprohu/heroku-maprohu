@@ -26,23 +26,23 @@ object UI {
     import rx.Ctx.Owner.Unsafe._
 
     import JsDom.all._
-    val statusLabel = div.render
+//    val statusLabel = div.render
     val mainPanel = div.render
 
     dom.document.body.appendChild(
       div(
-        statusLabel,
+//        statusLabel,
         mainPanel
       ).render
     )
 
-    root
-      .connected
-      .foreach({ c =>
-        statusLabel.replaceContent(
-          span(if (c) "connected" else "disconnected").render
-        )
-      })
+//    root
+//      .connected
+//      .foreach({ c =>
+//        statusLabel.replaceContent(
+//          span(if (c) "connected" else "disconnected").render
+//        )
+//      })
 
     root
       .main
@@ -57,10 +57,5 @@ object UI {
 class Root {
   val connected = Var(false)
   val main = Var[Node](JsDom.all.div.render)
-}
-
-class Connected {
-
-
 }
 

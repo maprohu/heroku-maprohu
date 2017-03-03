@@ -1,12 +1,15 @@
 package maprohu.heroku.frontend
 
-import maprohu.heroku.frontend.ui.{Root, UI}
+import maprohu.heroku.frontend.State.StateInput
+import maprohu.heroku.frontend.ui.{Root, Terminal, UI}
+import maprohu.heroku.shared.ClientToServer
 import monix.reactive.{Consumer, Observable}
 
 import scala.scalajs.js.JSApp
 import org.scalajs.dom.raw.WebSocket
 import rx.Var
 import monix.execution.Scheduler.Implicits.global
+import monix.reactive.subjects.PublishSubject
 
 /**
   * Created by pappmar on 23/02/2017.
@@ -20,11 +23,14 @@ object MainApp extends JSApp {
     val root = new Root
     UI.setup(root)
 
-    implicit val session =
-      Session(
-        send = { msg =>
+    val subject = PublishSubject[ClientToServer]()
+
+    subject
+      .consumeWith(
+        Consumer.foreach({ msg =>
           import boopickle.Default._
           import scala.scalajs.js.typedarray.TypedArrayBufferOps._
+
           connection
             .now
             .foreach({ ws =>
@@ -32,34 +38,46 @@ object MainApp extends JSApp {
                 Pickle(msg).toByteBuffer.arrayBuffer()
               )
             })
-        },
+        })
+      )
+      .runAsync
+
+    implicit val session =
+      Session(
+        send = subject,
         root = root
       )
 
-    val states = States.create
+    val connectionEvents =
+      WebSocketClient
+        .observable
+        .map({
+          case o : WsOpen =>
+            connection() = Some(o.webSocket)
+            ConnectionEstablished
+          case WsClose =>
+            connection() = None
+            ConnectionLost
+          case m : WsMessage =>
+            MessageFromServer(m.msg)
+        })
 
-    WebSocketClient
-      .observable
-      .map({
-        case o : WsOpen =>
-          connection() = Some(o.webSocket)
-          ConnectionEstablished
-        case WsClose =>
-          connection() = None
-          ConnectionLost
-        case m : WsMessage =>
-          MessageFromServer(m.msg)
-      })
-      .flatScan(states.initial)({ (state, elem) =>
-        Observable
-          .fromFuture(
-            state.process(elem)
-          )
-      })
-      .consumeWith(
-        Consumer.complete
-      )
-      .runAsync
+    TerminalApp.run(
+      connectionEvents,
+      session
+    )
+//      .flatScan(State.Initial)({ (state, elem) =>
+//        Observable
+//          .fromFuture(
+//            state.process(
+//              StateInput(elem, session)
+//            )
+//          )
+//      })
+//      .consumeWith(
+//        Consumer.complete
+//      )
+//      .runAsync
 
 
   }

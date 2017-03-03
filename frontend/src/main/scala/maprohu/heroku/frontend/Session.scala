@@ -5,7 +5,7 @@ import maprohu.heroku.shared.ClientToServer
 import monix.execution.Cancelable
 import monix.execution.cancelables.{BooleanCancelable, MultiAssignmentCancelable, SerialCancelable, SingleAssignmentCancelable}
 import monix.reactive.OverflowStrategy.Unbounded
-import monix.reactive.{MulticastStrategy, Observable}
+import monix.reactive.{MulticastStrategy, Observable, Observer}
 import org.scalajs.dom
 import monix.execution.Scheduler.Implicits.global
 
@@ -13,7 +13,7 @@ import monix.execution.Scheduler.Implicits.global
   * Created by pappmar on 23/02/2017.
   */
 case class Session(
-  send: ClientToServer => Unit,
+  send: Observer[ClientToServer],
   root: Root
 )
 

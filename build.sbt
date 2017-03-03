@@ -60,7 +60,8 @@ lazy val frontend =
       libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.1",
       libraryDependencies += "io.monix" %%% "monix-reactive" % "2.2.2",
       libraryDependencies += "com.lihaoyi" %%% "scalatags" % "0.6.3",
-      libraryDependencies += "com.lihaoyi" %%% "scalarx" % "0.3.2"
+      libraryDependencies += "com.lihaoyi" %%% "scalarx" % "0.3.2",
+      libraryDependencies += "com.lihaoyi" %%% "upickle" % "0.4.4"
     )
 
 

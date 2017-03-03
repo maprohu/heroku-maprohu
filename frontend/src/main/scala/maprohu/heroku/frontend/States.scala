@@ -2,7 +2,8 @@ package maprohu.heroku.frontend
 
 
 import maprohu.heroku.frontend.ConnectionState.{ConnectionStateInput, FN}
-import maprohu.heroku.frontend.pages.MainPage
+import maprohu.heroku.frontend.State.StateInput
+import maprohu.heroku.frontend.pages.{GuestPage, MainPage}
 import maprohu.heroku.shared.Shared.SessionID
 import maprohu.heroku.shared.{CreateSession, ResumeSession, SessionCreated}
 
@@ -21,6 +22,10 @@ object ConnectionState {
     override def process(input: ConnectionStateInput): Future[ConnectionState] = fn(input)
   }
 
+  implicit class StateOps(state: ConnectionState) {
+    def future : Future[ConnectionState] = Future.successful(state)
+  }
+
   def connectionStatus(evt: Event, session: Session) = evt match {
     case ConnectionEstablished =>
       session.root.connected() = true
@@ -32,18 +37,15 @@ object ConnectionState {
   def connection(fn: FN) = ConnectionState { i => import i._
     connectionStatus(evt, session)
 
-    fn(evt)
+    fn(i)
   }
 
-  implicit class StateOps(state: ConnectionState) {
-    def future = Future.successful(state)
-  }
 
 
   val initial : ConnectionState = connection { i => import i._
     evt match {
       case ConnectionEstablished =>
-        session.send(CreateSession)
+        session.send.onNext(CreateSession)
         creatingSession.future
       case _ => ???
     }
@@ -70,7 +72,7 @@ object ConnectionState {
   def connectionLost(id: SessionID) : ConnectionState = connection { i => import i._
     evt match {
       case ConnectionEstablished =>
-        session.send(ResumeSession(id))
+        session.send.onNext(ResumeSession(id))
         sessionCreated(id).future
       case _ => ???
     }
@@ -83,9 +85,26 @@ trait ConnectionState {
   def process(input: ConnectionStateInput) : Future[ConnectionState]
 }
 
+object State {
+  case class StateInput(
+    event: Event,
+    session: Session
+  )
+
+  val Initial : State = MainState()
+}
+
+trait State {
+  def process(input: StateInput) : Future[State]
+}
+
 case class MainState(
-  connection: ConnectionState,
-  page: MainPage
-)
+  connection: ConnectionState = ConnectionState.initial,
+  page: MainPage = GuestPage
+) extends State {
+  override def process(input: StateInput): Future[State] = {
+    ???
+  }
+}
 
 

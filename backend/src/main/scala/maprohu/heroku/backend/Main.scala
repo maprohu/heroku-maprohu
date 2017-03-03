@@ -44,7 +44,7 @@ object Main {
 
     val wsFlow =
       PicklingFlow.pickling(
-        LogicFlow.createLogic()
+        LogicBasicFlow.createLogic()
       )
 
     val route =

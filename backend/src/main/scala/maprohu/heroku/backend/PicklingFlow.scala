@@ -5,7 +5,9 @@ import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{BroadcastHub, Flow, Keep, MergeHub}
 import akka.util.ByteString
+import maprohu.heroku.backend.PicklingFlow.FlowID
 import maprohu.heroku.shared._
+import monix.execution.atomic.Atomic
 
 import scala.concurrent.duration._
 
@@ -14,8 +16,12 @@ import scala.concurrent.duration._
   */
 object PicklingFlow {
 
+  type FlowID = Long
+
+  val flowIds = Atomic(0L)
+
   def pickling(
-    logic: Flow[ClientToServer, OutputMessage, _]
+    logic: Flow[FlowWrapper[ClientToServer], OutputMessage, _]
   )(implicit
     materializer: ActorMaterializer
   ) = {
@@ -24,41 +30,56 @@ object PicklingFlow {
 
     val (broadcastSink, broadcastSource) =
       MergeHub
-        .source[ServerToClientMessage]
+        .source[BroadcastMessage]
         .toMat(
           BroadcastHub
-            .sink[ServerToClientMessage]
+            .sink[BroadcastMessage]
         )(Keep.both)
         .run()
 
     Flow[Message]
-      .mapAsync(1)({
-        case bm: BinaryMessage =>
-          bm
-            .dataStream
-            .runReduce(_ ++ _)
-        case _ => ???
+      .prefixAndTail(0)
+      .flatMapConcat({
+        case (_, source) =>
+          val flowId = flowIds.getAndIncrement()
+
+          source
+            .mapAsync(1)({
+              case bm: BinaryMessage =>
+                bm
+                  .dataStream
+                  .runReduce(_ ++ _)
+              case _ => ???
+            })
+            .map({ data =>
+              FlowWrapper(
+                flowId = flowId,
+                message =
+                  Unpickle[ClientToServer].fromBytes(
+                    data.asByteBuffer
+                  )
+              )
+            })
+            .via(logic)
+            .alsoTo(
+              Flow[OutputMessage]
+                .collect({
+                  case e : BroadcastMessage => e
+                })
+                .to(broadcastSink)
+            )
+            .collect({
+              case e : DirectMessage => e.serverToClient
+            })
+            .merge(
+              broadcastSource
+                .collect({
+                  case m if m.filter(flowId) => m.serverToClient
+                }),
+              eagerComplete = true
+            )
+
       })
-      .map({ data =>
-        Unpickle[ClientToServer].fromBytes(
-          data.asByteBuffer
-        )
-      })
-      .via(logic)
-      .alsoTo(
-        Flow[OutputMessage]
-          .collect({
-            case e : BroadcastMessage => e.serverToClient
-          })
-          .to(broadcastSink)
-      )
-      .collect({
-        case e : DirectMessage => e.serverToClient
-      })
-      .merge(
-        broadcastSource,
-        eagerComplete = true
-      )
       .map(ServerToClientMessageContainer.apply)
       .keepAlive(
         15.seconds,
@@ -85,7 +106,19 @@ case class DirectMessage(
 ) extends OutputMessage
 
 case class BroadcastMessage(
+  filter: FlowID => Boolean,
   serverToClient: ServerToClientMessage
 ) extends OutputMessage
 
 
+
+case class FlowWrapper[T](
+  flowId: FlowID,
+  message: T
+) {
+  def map[R](fn: T => R) =
+    FlowWrapper(
+      flowId = flowId,
+      message = fn(message)
+    )
+}
