@@ -24,8 +24,10 @@ trait Data extends JdbcProfile with StrictLogging {
   class Users(tag: Tag) extends Table[User](tag, "users") {
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name", O.Unique)
+    def salt = column[Array[Byte]]("salt")
     def hash = column[Array[Byte]]("hash")
-    def * = (id.?, name, hash) <> (User.tupled, User.unapply)
+    def iterations = column[Int]("iterations")
+    def * = (id.?, name, salt, hash, iterations) <> (User.tupled, User.unapply)
   }
   val users = TableQuery[Users]
 

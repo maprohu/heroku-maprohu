@@ -43,16 +43,12 @@ case class ChatMessage(
   message: String
 ) extends ClientToServer with ServerToClientMessage
 
+case class Signup(
+  name: String,
+  password: String
+) extends ClientToServer
 
-//case class UserInfo(
-//  id: Long,
-//  nick: Option[String],
-//  present: Boolean
-//)
-//
-//case object GetUsers extends ClientToServer
-//
-//case class Users(
-//  data: Seq[UserInfo]
-//) extends ServerToClient
+
+
+
 

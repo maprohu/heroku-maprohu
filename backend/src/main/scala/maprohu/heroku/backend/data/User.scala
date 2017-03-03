@@ -8,7 +8,9 @@ import maprohu.heroku.backend.data.Data.SchemaVersion
 case class User(
   id: Option[Int],
   name: String,
-  hash: Array[Byte]
+  salt: Array[Byte],
+  hash: Array[Byte],
+  iterations: Int
 )
 
 case class Prop(
